@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1495454394 source:c:\users\grbz\desktop\proglab2.4\main.cpp
+	<iostream>
+	<stdio.h>
+	<string>
+	<windows.h>
+	<mysql.h>
+

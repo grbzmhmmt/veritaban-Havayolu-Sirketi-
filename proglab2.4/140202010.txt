@@ -1,0 +1,346 @@
+#include <iostream>
+#include <stdio.h>
+#include <string>
+#include <windows.h>
+#include <mysql.h>
+
+using std::getline;
+using std::cin;
+
+using namespace std;
+
+int main()
+{
+    MYSQL* conn;
+    MYSQL_ROW row;
+    MYSQL_RES* res;
+
+    int gstate;  ///if gtate zero not succesful if gstate unzere it is succesfully
+    conn =mysql_init(0);       //conn un mysql baðlantýsý olduðu tanýmlanýyor
+    if(conn){   //baðlantýnýn oluþtulduðu kontrol ediliyor
+        cout <<"connection object ok"<<endl;
+    }
+    else{       //baðlantý oluþmamýþsa uyarý veriliyor
+        cout <<"conn object problem!"<<mysql_error(conn)<<endl;
+    }
+
+    //mysql ile baðlantý oluþturuluyor
+    conn=mysql_real_connect(conn,"localhost","root","",NULL,3306,NULL,0);
+
+    //database oluþturuluyor
+    mysql_query(conn,"create database prolab");
+
+    //prolab datbe ile baðlantý kuruluyor
+    conn=mysql_real_connect(conn,"localhost","root","","prolab",3306,NULL,0);
+
+    //ucaklar tablosu olusturuluyo
+    mysql_query(conn,"create table ucaklar(ukn int(11) not null , umodel varchar(45) default null,ukapasite varchar(45) default null,primary key(ukn))");
+
+    //yolcu tablomuz oluþturuluyor
+    mysql_query(conn,"create table yolcu(tckn int(11) not null  , isim varchar(45) default null,adres varchar(45) default null,eposta varchar(45) default null,sehir varchar(45) default null,primary key(tckn))");
+
+    //yolcular tablomuz oluþturuluyor
+    mysql_query(conn,"create table yolcular(tckn int(11) not null ,tarih varchar(45) default null,ukn int(11),bn varchar(45) default null,bin varchar(45) default null,primary key(tckn,ukn,tarih,bn,bin),foreign key(ukn) references ucaklar(ukn) on delete cascade,foreign key(tckn) references yolcu(tckn) on delete cascade)");
+
+    //seferler tablomuz oluþturuluyor
+    mysql_query(conn,"create table seferler(ukn int(11) not null , bn varchar(45) default null,bin varchar(45) default null,tarih varchar(45) default null,saat varchar(45) default null,primary key(tarih,ukn),foreign key(ukn) references ucaklar(ukn) on delete cascade)");
+
+
+    //aþþagýda ucaklar tablomuza 8 adet veri giriþi yapýlýyor
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('111','boing','200')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('112','jet','20')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('113','boing','150')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('114','boing','100')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('115','boing','250')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('116','jet','25')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('117','boing','225')");
+    mysql_query(conn,"insert into ucaklar(ukn,umodel,ukapasite) values('118','boing','175')");
+
+
+    //aþþagýda yolcu tablomuza 8 adet veri giriþi yapýlýyor
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('50','baris','izmit','aaaa','kocaeli')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('60','fatih','yalova','bbbb','bolu')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('80','baki','korfez','cccc','istanbul')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('110','gurbuz','golcuk','dddd','izmir')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('200','baris','basiskele','eeee','ankara')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('240','berk','hereke','ffff','ankara')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('199','taha','derince','gggg','rize')");
+    mysql_query(conn,"insert into yolcu(tckn,isim,adres,eposta,sehir) values('44','gurbuz','gebze','hhhh','malatya')");
+
+
+    //aþþagýda seferler tablomuza 8 adet veri giriþi yapýlýyor
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('istanbul','ankara','210517','800','111')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('ankara','istanbul','210517','900','112')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('izmir','malatya','210517','1000','113')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('istanbul','antalya','210517','1100','114')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('antalya','edirne','210517','1130','115')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('mugla','sivas','210517','1400','116')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('sinop','istanbul','210517','1430','117')");
+    mysql_query(conn,"insert into seferler(bn,bin,tarih,saat,ukn) values('rize','konya','210517','1400','118')");
+
+
+    //aþþagýda yolcular tablomuza 8 adet veri giriþi yapýlýyor
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('50','210517','111','istanbul','ankara')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('60','210517','112','ankara','istanbul')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('80','210517','113','izmir','malatya')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('110','210517','114','istanbul','antalya')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('200','210517','114','istanbul','antalya')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('240','210517','114','istanbul','antalya')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('199','210517','115','kars','nigde')");
+    mysql_query(conn,"insert into yolcular(tckn,tarih,ukn,bn,bin) values('44','210517','113','izmir','malatya')");
+
+    //row degerleri döngü den gelen sonuclarýn saklandýgý dizi indeks deðerleri
+    int secim;
+    if(conn){
+        while(1){   //kullanýcýnýn sonsuz iþlem yapabilmesi için sonsuz döngüye giriliyor
+            cout <<" yapmak istediginiz islem numarasini giriniz :"<<endl;
+            cout <<" cikmak icin 8 tuslayiniz :"<<endl; cin>>secim;     //kullanýcý yapmak istediði iþlem icin secim alýnýyor
+            if(secim==8)        //kulllanýcý cýkmak isterse çýkýþ yapýlýyýr
+                break;
+            switch(secim){      //secim deðeri nin ne olduðuna göre iþlem yapýlacak
+            case 1:{            //eðer secim 1 ise;  yeni sefer tanýmlama
+
+                string ukn,tarih,bn,bin,saat;       //kullanýcýdan yandaki degerleri almak için deðiþkenler ytanýmlanýyor
+                cout<<" Kuyruk no griniz(ukn) : "<<endl; cin>>ukn;      //ukn deðeri isteniyor
+                cout<<" Tarih giriniz : "<<endl; cin>>tarih;            //tarih deðeri isteniyor
+                cout<<" Baslangic noktasini giriniz : "<<endl; cin>>bn;     //biniþ yeri deðeri isteniyor
+                cout<<" Inis sehrini giriniz: "<<endl; cin>>bin;        // iniþ yeri no deðeri isteniyor
+                cout<<" saati  giriniz: "<<endl; cin>>saat;         //saati deðeri isteniyor
+
+                string query="insert into seferler(ukn,tarih,bn,bin,saat) values('"+ukn+"','"+tarih+"','"+bn+"','"+bin+"','"+saat+"')";
+                //bir string deðerine yazmak istediðimiz  sorgu atanýyor
+
+                const char* q = query.c_str();      //sorgumuz bir pointer deðiþkenine atanýyor
+                cout<<"query is  :  "<<q<<endl;     //yazdýðýmýz sorgumuz ekrana basýlýyor
+                mysql_query(conn,q);                //sorgumuz sorgu fonksiyonu ile mysql e gönderiliyor
+
+                break;
+            }
+            case 2:{            //secim =2 ise ;    bilet satma iþlemi
+                int i=0;
+                gstate = mysql_query(conn,"select * from yolcu");       //sorgumuz yapýlýyor yolcu tablosunun tüm deðerleri çekiliyor
+                res=mysql_store_result(conn);                           //sorgumuz un döndüðü sonu atanýyor
+
+                while(row=mysql_fetch_row(res)){i++;}           //sorgumuzun sonucu row deðiþkenine atanýyor ve sorgunun son satýrýna gelene kadar döngümüz devam ediyor
+                string tcknno[i];               //tcknno isimli string tanýmlanýyor
+                i=0;
+                gstate = mysql_query(conn,"select * from yolcu");         //sorgumuz yapýlýyor yolcu tablosunun tüm deðerleri çekiliyor
+                res=mysql_store_result(conn);                              //sorgumuz un döndüðü sonu atanýyor
+
+                while(row=mysql_fetch_row(res)){ //sorgumuzun sonucu row deðiþkenine atanýyor ve sorgunun son satýrýna gelene kadar döngümüz devam ediyor
+                tcknno[i]=row[0];           //sorgumuzdaki satýrlarýn ilk koonu olan tckn numarasý tcknno dizimize atanýyor
+                cout<<tcknno[i]<<endl;
+                i++;
+                }
+
+                string tarih,bn,bin,tckn,isim,eposta,sehir,ukn,adres;
+                //kullanýcýdan alacak olduðumuz degerler için bu deikenlerin tanýmlamalarý yapýlýyor
+                int biletsayisi;
+                //aþþagýda degiþkenlerin ismi yazýlarak kullanýcýdan  degerleri isteniyor
+                cout<<" Tarih giriniz : "<<endl; cin>>tarih;
+                cout<<" Baslangic noktasini giriniz : "<<endl; cin>>bn;
+                cout<<" Inis sehrini giriniz: "<<endl; cin>>bin;
+                cout<<" bilet sayisini giriniz: "<<endl; cin>>biletsayisi;
+
+                mysql_query(conn,"select * from seferler");     //tüm sferler in istendiði sorgu
+                res=mysql_store_result(conn);       //sonuc atanýyor
+                int sonuc=0;
+                while(row=mysql_fetch_row(res)){
+                    if(tarih==row[2] && bn==row[0] && bin==row[1]){
+                        ukn=row[4];                 //seferlerdeki ucak kuyruk numarakaru ukn dizimize atanýyor
+                        sonuc=1;
+                    }
+                }
+                if (sonuc==0){          //girilen deðerler yanlýþ ise sefer bulunamýyor
+                    cout<<"uygun sefer bulunamamistir"<<endl;
+                    break;
+                }
+                int k=i;
+                for(int i=0;i<biletsayisi;i++){     //kullanýcýnýn bilet sayýsýna göre bir döngü olusturuluyor ve tckn no larý isteniyor
+                    cout<<i+1<<". TCKN giriniz: "<<endl; cin>>tckn;
+                    sonuc=0;
+                    for(int j=0;j<k;j++){           //girilen tckn bumarasý yolcu tablomuzda varmý diye kontrol ediliyor
+                        if(tcknno[j]==tckn){
+                            sonuc=1;
+                            break;
+                        }
+                    }
+                    if(sonuc==0){       //eðer girilen tckn numarasý kayýtlý deðilse yni yolcu için bilgiler istenmiyr
+                        cout<<"adres giriniz";
+                        cin.ignore();
+                        std::getline(cin,adres);
+                        cout<<"yolcu bulunamamistir lutfen yolcu bilgilerini giriniz.."<<endl;
+                        cout<<"isim giriniz"<<endl; cin>>isim;
+                        cout<<"eposta giriniz"<<endl; cin>>eposta;
+                        cout<<"sehir giriniz"<<endl; cin>>sehir;
+
+
+                        string query="insert into yolcu(tckn,isim,adres,eposta,sehir) values('"+tckn+"','"+isim+"','"+adres+"','"+eposta+"','"+sehir+"')";
+                        //yolcu tablosuna insert into komutu ile yolcu ekleme sorgusu oluþturuluyor
+                        const char *q=query.c_str();
+                        mysql_query(conn,q);        //sorgumuz mysql_query komutu ile gönderiliyor
+
+                    }else{}
+
+                    string query="insert into yolcular(tckn,tarih,ukn,bn,bin) values('"+tckn+"','"+tarih+"','"+ukn+"','"+bn+"','"+bin+"')";
+                    //yolcular tablosuna yolcu kleme sorgusu oluþturuluyor
+                    const char *q=query.c_str();
+                    mysql_query(conn,q);    //yolcu ekleme sorgumuz gönderiliyor
+
+                }
+                break;
+            }
+            case 3:{        //girilen tckn numarasýna göre yolcularý listeleme bloðu
+                gstate = mysql_query(conn,"select * from yolcular");    //tüm yolcularý çeken sorgu muz
+                string tckn;
+                cout<<" TCKN no nu giriniz : "<<endl; cin>>tckn;    //tckn no iisteniyor kullanýcýdan
+
+                res=mysql_store_result(conn);
+                //now ewad and display rekord one @time
+
+                while (row=mysql_fetch_row(res)){   //çekilen sorgu bir döngü eçerisinde ekrana yazdýrmak için döngümðz oluþtýurulyor
+                //döngü sayysy kadar satyr basar (satyr dongüde bir artar)
+                    if(tckn == row[0]){     //yolcunun tckn si ve sorgudaki tckn ler eþit ise bu blok içerisinde ekrana yazdýrma iþlemi yapýlýyor
+                        string tckn,isim,adres,eposta,sehir,tarih,ukn,bn,bin;
+                        cout<<" tckn : "<<row[0]<<"  "
+                            <<" tarih : "<<row[1]<<"  "
+                            <<" ukn : "<<row[2]<<"  "
+                            <<" bn : "<<row[3]<<"  "
+                            <<" bin : "<<row[4]<<endl;
+                        cout<<"\n"<<endl;
+                    }
+                    else {}
+                }
+
+
+                break;
+            }
+            case 4:{        //uçuþ iptali icin 4 secenegi kullanýlmmýþ ise
+                string ukn,tarih;       //kullanýcýdan ucus bilgilerini almak için deðiþenler alýnýyor
+                //kullanýcýdan hangi ucusu silmek istediðinin bilgileri alýnýyor
+                cout<<" Kuyruk no griniz(ukn) : "<<endl; cin>>ukn;
+                cout<<" Tarih giriniz : "<<endl; cin>>tarih;
+
+
+                string query = "delete from yolcular where  ukn = '"+ukn+"' and tarih = '"+tarih+"'";
+                //delete komutlu sorgumuzu bir string e atýyoruz
+                const char * q = query.c_str();
+                mysql_query(conn,q);    //alýnan bilgilere göre silme komutumuza yolcunun bilgileri yolcular tablomuza gönderiliyýr
+
+                string query1 = "delete from seferler where  ukn = '"+ukn+"' and tarih = '"+tarih+"'";
+                //delete komutlu sorgumuzu bir string e atýyoruz
+                const char * qw = query1.c_str();
+                mysql_query(conn,qw);
+
+
+                break;
+            }
+            case 5:{    //bilet iptali
+                string ukn,tarih,tckn;      //yolcunun bilgilerini almak için deðiþkenler oluþturuluyor
+                //kullanýcýdan bilgiler alýnýyor
+                cout<<" Kuyruk no(ukn) nu giriniz : "<<endl; cin>>ukn;
+                cout<<" Tarih'i  giriniz : "<<endl; cin>>tarih;
+                cout<<" TCKN no nu  giriniz : "<<endl; cin>>tckn;
+
+                string query="delete from yolcular where tckn="+tckn+" and ukn="+ukn+" and tarih="+tarih+"";
+                //gerekli silme komutu bir string deðiþkenimize atýlýyor
+                const char* q = query.c_str();      //
+                cout<<"query is  :  "<<q<<endl;
+                mysql_query(conn,q);        //sorgumuz gönderiliyor
+
+                break;
+            }
+            case 6:{        //sefer sorgulama
+                gstate = mysql_query(conn,"select * from yolcular");
+                //yolcular tablosundan tkn no larýný almak için tüm yolcular çekiliyor
+                string ukn,tarih;
+                cout<<" kuyruk no(ukn) nu giriniz : "<<endl; cin>>ukn;
+                cout<<" tarih'i  giriniz : "<<endl; cin>>tarih;
+                res=mysql_store_result(conn);
+                string tcknno[50];
+                int i=0;
+                //now ewad and display rekord one @time
+                while (row=mysql_fetch_row(res)){   //tckn numarasýný aktarmak için bir döng oluþturuluyor
+                //döngü sayysy kadar satyr basar (satyr dongüde bir artar)
+                    if(tarih == row[1] && ukn==row[2]){
+                        tcknno[i]=row[0];       //tckn ler eþitleniyor
+                        i++;
+                    }
+                    else {}
+                }
+
+                gstate = mysql_query(conn,"select * from yolcu");
+                //yolcu tablosundan tüm bilgeiler çekiliyor
+                res=mysql_store_result(conn);
+                i=0;
+                while (row=mysql_fetch_row(res)){
+                //döngü sayysy kadar satyr basar (satyr dongüde bir artar)
+                    for(int j=0;j<i;j++){
+                        if(tcknno[j] == row[0]){//cekillen bilgiler ile eþlesen tckn numaralarý ekran yazdýrýlýyor
+                            cout<<row[0]<<"  "
+                                <<row[1]<<"  "
+                                <<row[2]<<"  "
+                                <<row[3]<<"  "
+                                <<row[4]<<endl;
+                            cout<<"\n"<<endl;
+                        }
+                        else {}
+                    }
+                    i++;
+                }
+                break;
+            }
+            case 7:{
+                string uknno[50][3];
+                int i=0;
+                gstate=mysql_query(conn,"select * from ucaklar");
+                res=mysql_store_result(conn);
+                while(row=mysql_fetch_row(res)){
+                    uknno[i][0]=row[0];
+                    i++;
+                }
+                gstate=mysql_query(conn,"select yolcular.ukn,count(*),ucaklar.ukapasite from yolcular,ucaklar where yolcular.ukn=ucaklar.ukn group by yolcular.ukn");
+                res=mysql_store_result(conn);
+                i=0;
+                while(row=mysql_fetch_row(res)){
+                    if(uknno[i][0]==row[0]){
+                        uknno[i][1]=row[1];
+                        uknno[i][2]=row[2];
+                       // cout<<uknno[i][0]<<"  "<<uknno[i][1]<<"  "<<uknno[i][2]<<endl;
+                        i++;
+                    }
+                }
+                float ortalama[i];
+                for(int j=0;j<i;j++){
+                    string ilk=uknno[j][1];
+                    string son=uknno[j][2];
+                    int ilk1=atof(ilk.c_str());
+                    int son1=atof(son.c_str());
+                   // cout<<ilk1<<"  "<<son1<<endl;
+                    ortalama[j]=(float)ilk1/(float)son1;
+                    cout<<ortalama[j]<<endl;
+                }
+                float enb=0;
+                for(int j=0;j<i;j++){
+                    if(ortalama[j]>=enb)
+                        enb=ortalama[j];
+                }
+                cout<<"en buyuk ortalamalar : "<<endl;
+                for(int j=0;j<i;j++){
+                    if(ortalama[j]>=enb)
+                        cout<<ortalama[j]<<endl;
+                }
+
+                break;
+            }
+            }
+       }
+
+    }
+
+    else{
+        cout <<"conn object problem!"<<mysql_error(conn)<<endl;
+    }
+
+    return 0;
+}
